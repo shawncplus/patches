@@ -1,0 +1,107 @@
+From 61d4e3e9668feebfee80ec3ca45d3410d102f9d3 Mon Sep 17 00:00:00 2001
+From: Shawn Biddle <shawncplus@gmail.com>
+Date: Sat, 18 Jun 2011 05:35:10 -0400
+Subject: [PATCH 3/4] Implement a real solution: %<num>G for 256 color foreground color
+ you have to know the cterm index for the color which isn't that
+ difficult to find.
+
+---
+ src/display.c |   16 ++++++++++++++--
+ src/screen.c  |   26 ++++++++++++++------------
+ 2 files changed, 28 insertions(+), 14 deletions(-)
+
+diff --git a/src/display.c b/src/display.c
+index 5fa11cb..2ca785e 100644
+--- a/src/display.c
++++ b/src/display.c
+@@ -2150,6 +2150,18 @@ PrePutWinMsg(s, start, max)
+ char *s;
+ int start, max;
+ {
++	/* Fix padding for non-printing ecma escape sequences */
++    int i, ecma = 0, fix = 0, l = strlen(s);
++    for (i = 0; i < l; ++i) {
++	if (s[i] == '\033')
++	    ecma = 1;
++
++	if (ecma) fix++;
++
++	if (ecma && s[i] == 'm')
++	    ecma = 0;
++    }
++
+   /* Avoid double-encoding problem for a UTF-8 message on a UTF-8 locale.
+      Ideally, this would not be necessary. But fixing it the Right Way will
+      probably take way more time. So this will have to do for now. */
+@@ -2157,7 +2169,7 @@ int start, max;
+     {
+       int chars = strlen_onscreen(s + start, s + max);
+       D_encoding = 0;
+-      PutWinMsg(s, start, max);
++      PutWinMsg(s, start, max + fix);
+       D_encoding = UTF8;
+       D_x -= (max - chars);	/* Yak! But this is necessary to count for
+ 				   the fact that not every byte represents a
+@@ -2166,7 +2178,7 @@ int start, max;
+     }
+   else
+     {
+-      PutWinMsg(s, start, max);
++      PutWinMsg(s, start, max + fix);
+       return max;
+     }
+ }
+diff --git a/src/screen.c b/src/screen.c
+index d55ee91..44e4932 100644
+--- a/src/screen.c
++++ b/src/screen.c
+@@ -2518,7 +2518,6 @@ int rec;
+   int truncper = 0;
+   int trunclong = 0;
+   struct backtick *bt;
+-  int ecma_esc = 0; /* flag whether in ecma esc sequence for backtick */
+  
+   if (winmsg_numrend >= 0)
+     winmsg_numrend = 0;
+@@ -2558,17 +2557,6 @@ int rec;
+ 		  break;
+ 		}
+ 	    }
+-      /* These 3 conditionals handle non-printing characters when
+-       * backtick commands use ecma 48 escape sequences... at least the color
+-       * codes */
+-      if (*s == '\033')
+-	ecma_esc = 1;
+-
+-      if (ecma_esc)
+-	p--;
+-
+-      if (ecma_esc && *s == 'm')
+-	ecma_esc = 0;
+ 
+ 	  continue;
+ 	}
+@@ -2874,6 +2862,20 @@ int rec;
+ 	  trunclong = longflg;
+ 	  p--;
+ 	  break;
++	case 'G':
++	  {
++	  *p = 0;
++	  char colstr[128];
++	  if (num && num < 256)
++	    sprintf(colstr, "\033[38;5;%dm", num);
++	  else
++	    strcpy(colstr, "\033[0m");
++
++	  strcpy(p, colstr);
++	  p += strlen(p) - 1;
++	  padlen += strlen(colstr);
++	  break;
++	  }
+ 	case '=':
+ 	case '<':
+ 	  *p = ' ';
+-- 
+1.7.4.1
+

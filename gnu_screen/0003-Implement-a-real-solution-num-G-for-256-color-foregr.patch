@@ -1,7 +1,7 @@
 From 61d4e3e9668feebfee80ec3ca45d3410d102f9d3 Mon Sep 17 00:00:00 2001
 From: Shawn Biddle <shawncplus@gmail.com>
 Date: Sat, 18 Jun 2011 05:35:10 -0400
-Subject: [PATCH 3/4] Implement a real solution: %<num>G for 256 color foreground color
+Subject: [PATCH 3/5] Implement a real solution: %<num>G for 256 color foreground color
  you have to know the cterm index for the color which isn't that
  difficult to find.
 

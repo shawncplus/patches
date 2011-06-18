@@ -1,0 +1,36 @@
+From 22965d9a7dfcae84e4b95b2650f87dc3612e50a4 Mon Sep 17 00:00:00 2001
+From: Shawn Biddle <shawncplus@gmail.com>
+Date: Sat, 18 Jun 2011 06:44:28 -0400
+Subject: [PATCH 5/5] sbiddle:background color token
+
+---
+ src/screen.c |   13 +++++++++++++
+ 1 files changed, 13 insertions(+), 0 deletions(-)
+
+diff --git a/src/screen.c b/src/screen.c
+index 44e4932..a745940 100644
+--- a/src/screen.c
++++ b/src/screen.c
+@@ -2876,6 +2876,19 @@ int rec;
+ 	  padlen += strlen(colstr);
+ 	  break;
+ 	  }
++	case 'B':
++	  *p = 0;
++	  char colstr[128];
++	  if (num && num < 256)
++		sprintf(colstr, "\033[48;5;%dm", num);
++	  else
++		strcpy(colstr, "\033[0m");
++
++	  strcpy(p, colstr);
++	  p += strlen(p) - 1;
++	  padlen += strlen(colstr);
++	  break;
++
+ 	case '=':
+ 	case '<':
+ 	  *p = ' ';
+-- 
+1.7.4.1
+

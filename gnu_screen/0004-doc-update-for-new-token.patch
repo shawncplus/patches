@@ -1,7 +1,7 @@
 From e419e18980084ad208dabec620974b77577037f2 Mon Sep 17 00:00:00 2001
 From: Shawn Biddle <shawncplus@gmail.com>
 Date: Sat, 18 Jun 2011 05:42:08 -0400
-Subject: [PATCH 4/4] doc update for new token
+Subject: [PATCH 4/5] doc update for new token
 
 ---
  src/doc/screen.1 |    3 +++

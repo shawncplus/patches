@@ -1,0 +1,25 @@
+From 21f283528896d8af5f86f0c9bb553a26362f6879 Mon Sep 17 00:00:00 2001
+From: Shawn <sbiddle@synacor.com>
+Date: Fri, 17 Jun 2011 16:45:14 -0400
+Subject: [PATCH 1/2] sbiddle: Allow backtick commands to send escape sequences. Currently breaks padding.
+
+---
+ src/screen.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/screen.c b/src/screen.c
+index 3dde3b4..c7b9a95 100644
+--- a/src/screen.c
++++ b/src/screen.c
+@@ -2293,7 +2293,7 @@ struct backtick *bt;
+     {
+       if (c == '\t')
+ 	c = ' ';
+-      if (c >= ' ' || c == '\005')
++      if (c >= ' ' || c == '\005' || c == '\033')
+ 	*q++ = c;
+     }
+   *q = 0;
+-- 
+1.7.4.1
+

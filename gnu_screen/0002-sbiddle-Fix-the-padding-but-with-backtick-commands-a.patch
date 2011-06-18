@@ -1,0 +1,43 @@
+From 2271cdee487808faf0d54d6bc329c8a0fa6c87b9 Mon Sep 17 00:00:00 2001
+From: sbiddle <sbiddle@synacor.com>
+Date: Fri, 17 Jun 2011 20:17:01 -0400
+Subject: [PATCH 2/2] sbiddle: Fix the padding but with backtick commands and non printing characters
+
+---
+ src/screen.c |   13 +++++++++++++
+ 1 files changed, 13 insertions(+), 0 deletions(-)
+
+diff --git a/src/screen.c b/src/screen.c
+index c7b9a95..d55ee91 100644
+--- a/src/screen.c
++++ b/src/screen.c
+@@ -2518,6 +2518,7 @@ int rec;
+   int truncper = 0;
+   int trunclong = 0;
+   struct backtick *bt;
++  int ecma_esc = 0; /* flag whether in ecma esc sequence for backtick */
+  
+   if (winmsg_numrend >= 0)
+     winmsg_numrend = 0;
+@@ -2557,6 +2558,18 @@ int rec;
+ 		  break;
+ 		}
+ 	    }
++      /* These 3 conditionals handle non-printing characters when
++       * backtick commands use ecma 48 escape sequences... at least the color
++       * codes */
++      if (*s == '\033')
++	ecma_esc = 1;
++
++      if (ecma_esc)
++	p--;
++
++      if (ecma_esc && *s == 'm')
++	ecma_esc = 0;
++
+ 	  continue;
+ 	}
+       if (*++s == esc)	/* double escape ? */
+-- 
+1.7.4.1
+

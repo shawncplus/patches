@@ -6,7 +6,7 @@ Patches
 GNU Screen
 ----------
 
-Patch to allow backtick commands to output 256 color control sequences. So this isn't true support for 256 color on the hardstatus but you can write your own commands that output 256 color and put them in the hardstatus
+Patch to add %G and %B tokens for 256 color foreground and background colors in the hardstatus.
 
 Cockatrice (cockatrice.de)
 ----------

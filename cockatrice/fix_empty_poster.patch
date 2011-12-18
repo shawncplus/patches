@@ -1,0 +1,49 @@
+From 164f8008fc8397067b9da2a6e05d34eefaf84876 Mon Sep 17 00:00:00 2001
+From: Shawn Biddle <shawncplus@gmail.com>
+Date: Sat, 17 Dec 2011 21:32:17 -0500
+Subject: [PATCH] Local hand reordering
+
+---
+ cockatrice/src/abstractcarditem.h |    1 +
+ cockatrice/src/handzone.cpp       |   13 ++++++++++++-
+ 2 files changed, 13 insertions(+), 1 deletions(-)
+
+diff --git a/cockatrice/src/abstractcarditem.h b/cockatrice/src/abstractcarditem.h
+index 2060537..80b8503 100644
+--- a/cockatrice/src/abstractcarditem.h
++++ b/cockatrice/src/abstractcarditem.h
+@@ -46,6 +46,7 @@ public:
+ 	qreal getRealZValue() const { return realZValue; }
+ 	void setRealZValue(qreal _zValue);
+ 	void setHovered(bool _hovered);
++	bool getHovered() const { return isHovered; }
+ 	QString getColor() const { return color; }
+ 	void setColor(const QString &_color);
+ 	bool getTapped() const { return tapped; }
+diff --git a/cockatrice/src/handzone.cpp b/cockatrice/src/handzone.cpp
+index 92dfeaa..5e7fe96 100644
+--- a/cockatrice/src/handzone.cpp
++++ b/cockatrice/src/handzone.cpp
+@@ -43,7 +43,18 @@ void HandZone::handleDropEvent(const QList<CardDragItem *> &dragItems, CardZone
+ 	for (int i = 0; i < dragItems.size(); ++i)
+ 		idList.append(new CardToMove(dragItems[i]->getId()));
+ 
+-	player->sendGameCommand(new Command_MoveCard(-1, startZone->getName(), idList, player->getId(), getName(), cards.size(), -1));
++	const int cardCount = cards.size();
++	int dropCard = cards.size();
++	if (settingsCache->getHorizontalHand()) {
++		for (int i = 0; i < cardCount; i++) {
++			CardItem *c = cards.at(i);
++			if (c->getHovered()) {
++				dropCard = i;
++			}
++		}
++	}
++
++	player->sendGameCommand(new Command_MoveCard(-1, startZone->getName(), idList, player->getId(), getName(), dropCard/*cards.size()*/, -1));
+ }
+ 
+ QRectF HandZone::boundingRect() const
+-- 
+1.7.5.4
+

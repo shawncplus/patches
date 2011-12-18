@@ -11,4 +11,8 @@ Patch to add %G and %B tokens for 256 color foreground and background colors in 
 Cockatrice (cockatrice.de)
 ----------
 
+reorder_hand.patch
 Patch to allow your to reorder your hand.
+
+multiple_tokens.patch
+Create multiple tokens at the same time

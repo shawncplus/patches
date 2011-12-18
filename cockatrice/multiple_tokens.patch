@@ -1,0 +1,110 @@
+From 05853ff602de73f88d768d2b77a34d1fd6dbcdcc Mon Sep 17 00:00:00 2001
+From: Shawn Biddle <shawncplus@gmail.com>
+Date: Sat, 17 Dec 2011 23:20:50 -0500
+Subject: [PATCH] Create multiple tokens at once
+
+---
+ cockatrice/src/dlg_create_token.cpp |   20 +++++++++++++++++---
+ cockatrice/src/dlg_create_token.h   |    5 ++++-
+ cockatrice/src/player.cpp           |    8 ++++++--
+ 3 files changed, 27 insertions(+), 6 deletions(-)
+
+diff --git a/cockatrice/src/dlg_create_token.cpp b/cockatrice/src/dlg_create_token.cpp
+index e7c6314..ee9ad68 100644
+--- a/cockatrice/src/dlg_create_token.cpp
++++ b/cockatrice/src/dlg_create_token.cpp
+@@ -31,6 +31,13 @@ DlgCreateToken::DlgCreateToken(QWidget *parent)
+ 	ptEdit = new QLineEdit;
+ 	ptLabel->setBuddy(ptEdit);
+ 
++	countLabel = new QLabel(tr("# &Tokens:"));
++	countEdit = new QSpinBox;
++	countEdit->setValue(1);
++	countEdit->setMinimum(1);
++	countLabel->setBuddy(countEdit);
++
++
+ 	annotationLabel = new QLabel(tr("&Annotation:"));
+ 	annotationEdit = new QLineEdit;
+ 	annotationLabel->setBuddy(annotationEdit);
+@@ -49,9 +56,11 @@ DlgCreateToken::DlgCreateToken(QWidget *parent)
+ 	grid->addWidget(colorEdit, 1, 1);
+ 	grid->addWidget(ptLabel, 2, 0);
+ 	grid->addWidget(ptEdit, 2, 1);
+-	grid->addWidget(annotationLabel, 3, 0);
+-	grid->addWidget(annotationEdit, 3, 1);
+-	grid->addWidget(destroyCheckBox, 4, 0, 1, 2);
++	grid->addWidget(countLabel, 3, 0);
++	grid->addWidget(countEdit, 3, 1);
++	grid->addWidget(annotationLabel, 4, 0);
++	grid->addWidget(annotationEdit, 4, 1);
++	grid->addWidget(destroyCheckBox, 5, 0, 1, 2);
+ 
+ 	QHBoxLayout *buttonLayout = new QHBoxLayout;
+ 	buttonLayout->addStretch();
+@@ -91,6 +100,11 @@ QString DlgCreateToken::getPT() const
+ 	return ptEdit->text();
+ }
+ 
++int DlgCreateToken::getCount()
++{
++	return countEdit->value();
++}
++
+ QString DlgCreateToken::getAnnotation() const
+ {
+ 	return annotationEdit->text();
+diff --git a/cockatrice/src/dlg_create_token.h b/cockatrice/src/dlg_create_token.h
+index 1e2b3b7..371a4df 100644
+--- a/cockatrice/src/dlg_create_token.h
++++ b/cockatrice/src/dlg_create_token.h
+@@ -3,6 +3,7 @@
+ 
+ #include <QDialog>
+ #include <QLineEdit>
++#include <QSpinBox>
+ 
+ class QLabel;
+ class QComboBox;
+@@ -17,13 +18,15 @@ public:
+ 	QString getColor() const;
+ 	QString getPT() const;
+ 	QString getAnnotation() const;
++	int getCount();
+ 	bool getDestroy() const;
+ private slots:
+ 	void actOk();
+ private:
+-	QLabel *nameLabel, *colorLabel, *ptLabel, *annotationLabel;
++	QLabel *nameLabel, *colorLabel, *ptLabel, *annotationLabel, *countLabel;
+ 	QComboBox *colorEdit;
+ 	QLineEdit *nameEdit, *ptEdit, *annotationEdit;
++	QSpinBox *countEdit;
+ 	QCheckBox *destroyCheckBox;
+ 	QPushButton *okButton, *cancelButton;
+ };
+diff --git a/cockatrice/src/player.cpp b/cockatrice/src/player.cpp
+index 5f78b4d..636e240 100644
+--- a/cockatrice/src/player.cpp
++++ b/cockatrice/src/player.cpp
+@@ -662,11 +662,15 @@ void Player::actCreateToken()
+ 	lastTokenName = dlg.getName();
+ 	lastTokenColor = dlg.getColor();
+ 	lastTokenPT = dlg.getPT();
++	int count = dlg.getCount();
+ 	lastTokenAnnotation = dlg.getAnnotation();
+ 	lastTokenDestroy = dlg.getDestroy();
+ 	aCreateAnotherToken->setEnabled(true);
+-	
+-	sendGameCommand(new Command_CreateToken(-1, "table", dlg.getName(), dlg.getColor(), dlg.getPT(), dlg.getAnnotation(), dlg.getDestroy(), -1, 0));
++
++	count = count ? count : 1;
++	for (int i = 0; i < count; i++) {
++		sendGameCommand(new Command_CreateToken(-1, "table", dlg.getName(), dlg.getColor(), dlg.getPT(), dlg.getAnnotation(), dlg.getDestroy(), -1, 0));
++	}
+ }
+ 
+ void Player::actCreateAnotherToken()
+-- 
+1.7.5.4
+

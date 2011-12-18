@@ -7,3 +7,8 @@ GNU Screen
 ----------
 
 Patch to allow backtick commands to output 256 color control sequences. So this isn't true support for 256 color on the hardstatus but you can write your own commands that output 256 color and put them in the hardstatus
+
+Cockatrice (cockatrice.de)
+----------
+
+Patch to allow your to reorder your hand.
